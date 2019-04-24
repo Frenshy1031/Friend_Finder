@@ -1,16 +1,49 @@
-$('#submit').on('click', function(){
-    let values = [];
-    let name= $('#name').val();
-    let photoUrl = $('#photo').val();
-
-    for (let i = i; i <= 10; i++){
-        if(!isNaN(parseInt($("#q"+ i + "option:selected").attr('value'))))
-            values.push(parseInt($("#q" + i + " option:selected").attr('value')));
-}
-        if (values.length === 10 && name != "" && photoUrl != ""){
-            console.log(values, name,photoUrl);
-         $('#results-modal').modal('show');
-}else{
-    console.log("Not all values are filled in");
+var config = {
+  ".chosen-select": {},
+  ".chosen-select-deselect": {
+      allow_single_deselect: true
+  },
+  ".chosen-select-no-single": {
+      disable_search_threshold: 10
+  },
+  ".chosen-select-no-results": {
+      no_results_text: "Ooooooops, nothing found!"
+  },
+  ".chosen-select-width": {
+      width: "95%"
+  }
 };
-})
+
+
+$("#submit").on("click", (event) => {
+  event.preventDefault();
+
+  
+  var userData = {
+      name: $("#name").val(),
+      photo: $("#photo").val(),
+      scores: [
+          $("#q1").val(),
+          $("#q2").val(),
+          $("#q3").val(),
+          $("#q4").val(),
+          $("#q5").val(),
+          $("#q6").val(),
+          $("#q7").val(),
+          $("#q8").val(),
+          $("#q9").val(),
+          $("#q10").val()
+      ]
+  };
+
+  $.post("/api/friends", userData, (data) => {
+    
+      $("#match-name").text(data.name);
+      $("#match-img").attr("src", data.photo);
+
+
+      $("#results-modal").modal("toggle");
+
+  });
+
+});

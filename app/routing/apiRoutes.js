@@ -1,42 +1,44 @@
-const  friends = require('../data/friends');
+const friendData = require("../data/friends");
 
-module.exports= function (app){
+module.exports = (app) => {
+
     
-    app.get("/api/friends", function (req, res){
-        res.json(friends)
+    app.get("/api/friends", (req, res) => {
+        res.json(friendData);
     });
-    app.post("/api/friends", function (req, res){
-            let bestMatch = {
-                name: "",
-                photo: "",
-                friendDifference: Infinity
-            };
-            
-            let userData = req.body;
-            let userScores = userData.scores;
 
-            let totalDifference;
-                for(let i = 0 ; i < friends.length; i++){
-                    let currentFriend = friends[i];
-                    totalDifference= 0;
-                console.log(currentFriend.name);
+    app.post("/api/friends", (req, res) => {
+        let userScore = req.body.scores;
+        const scoresArr = [];
+        let bestMatch = 0;
 
-                for (let j = 0; j < currentFriend.scores.length; j++){
-                    let currentFriendScore = currentFriend.scores[j];
-                    let currentUserScore = userScores[j];
 
-                    totalDifference +=Math.abs(parseInt(currentUserScore) - parseInt(currentFriendScore));
-                }
+        for (var i = 0; i < friendData.length; i++) {
+            var scoreDiff = 0;
+            for (var j = 0; j < userScore.length; j++) {
+                scoreDiff += (Math.abs(parseInt(friendData[i].scores[j]) - parseInt(userScore[j])))
+            }
+            scoresArr.push(scoreDiff);
+        }
 
-                if (totalDifference <= bestMatch.friendDifference) {
-                    bestMatch.name = currentFriend.name;
-                    bestMatch.photo = currentFriend.photo;
-                    bestMatch.friendDifference = totalDifference;
-                  }
-                }
+        for (var i = 0; i < scoresArr.length; i++) {
+            if (scoresArr[i] <= scoresArr[bestMatch]) {
+                bestMatch = i;
+            }
+        }
 
-                friends.push(userData);
-    
-                res.json(bestMatch);
-              });
-            };
+        let soulMate = friendData[bestMatch];
+        res.json(soulMate);
+        friendData.push(req.body)
+
+    });
+
+
+    app.post("/api/clear", (req, res) => {
+        
+        friendData.length = [];
+        res.json({
+            ok: true
+        });
+    });
+};
