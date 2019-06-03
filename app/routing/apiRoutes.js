@@ -1,44 +1,46 @@
-const friendData = require("../data/friends");
+var friends = require("../data/friends");
 
-module.exports = (app) => {
+// ROUTING
+module.exports = function (app) {
 
-    
-    app.get("/api/friends", (req, res) => {
-        res.json(friendData);
-    });
+  // API GET Requests
+  app.get("/api/friends", function (req, res) {
+    res.json(friends);
+  });
 
-    app.post("/api/friends", (req, res) => {
-        let userScore = req.body.scores;
-        const scoresArr = [];
-        let bestMatch = 0;
+  // API POST Requests
+  app.post("/api/friends", function (req, res) {
+    var bestMatch = {
+      name: "",
+      photo: "",
+      friendDifference: Infinity
+    };
 
+    var userData = req.body;
+    var userScores = userData.scores;
+    var totalDifference;
 
-        for (var i = 0; i < friendData.length; i++) {
-            var scoreDiff = 0;
-            for (var j = 0; j < userScore.length; j++) {
-                scoreDiff += (Math.abs(parseInt(friendData[i].scores[j]) - parseInt(userScore[j])))
-            }
-            scoresArr.push(scoreDiff);
-        }
+    for (var i = 0; i < friends.length; i++) {
+      var currentFriend = friends[i];
+      totalDifference = 0;
 
-        for (var i = 0; i < scoresArr.length; i++) {
-            if (scoresArr[i] <= scoresArr[bestMatch]) {
-                bestMatch = i;
-            }
-        }
+      console.log(currentFriend.name);
 
-        let soulMate = friendData[bestMatch];
-        res.json(soulMate);
-        friendData.push(req.body)
+      for (var j = 0; j < currentFriend.scores.length; j++) {
+        var currentFriendScore = currentFriend.scores[j];
+        var currentUserScore = userScores[j];
+        totalDifference += Math.abs(parseInt(currentUserScore) - parseInt(currentFriendScore));
+      }
 
-    });
+      if (totalDifference <= bestMatch.friendDifference) {
+        // Reset the bestMatch to be the new friend.
+        bestMatch.name = currentFriend.name;
+        bestMatch.photo = currentFriend.photo;
+        bestMatch.friendDifference = totalDifference;
+      }
+    }
+    friends.push(userData);
 
-
-    app.post("/api/clear", (req, res) => {
-        
-        friendData.length = [];
-        res.json({
-            ok: true
-        });
-    });
+    res.json(bestMatch);
+  });
 };

@@ -1,21 +1,19 @@
-const express = require('express');
+var express = require("express");
+var bodyParser = require("body-parser");
 
-const bodyParser =require('body-parser');
+// EXPRESS CONFIGURATION
+var app = express();
+var PORT = process.env.PORT || 8080;
 
-const app = express();
-const PORT = process.env.PORT ||8080;
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(express.static(`app/public`));
+app.use(bodyParser.json());
 
-app.use(express.urlencoded({ 
-    extended: true 
-}));
-app.use(express.json());
+// ROUTER
+require("../app/routing/apiRoutes")(app);
+require("../app/routing/htmlRoutes")(app);
 
-require("./routing/apiRoutes")(app);
-require("./routing/htmlRoutes")(app);
-
-app.listen(PORT, function(){
-    console.log("Listening on PORT" + PORT);
+// LISTENER
+app.listen(PORT, function() {
+  console.log("App listening on PORT: " + PORT);
 });
-
